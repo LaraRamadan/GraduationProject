@@ -1,3 +1,61 @@
 body{
-    background: gold;
+    background-image:url(images/OIP.webp);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    
 }
+.mb-3{
+    width: 25rem;
+    display: grid;
+    justify-items: first baseline;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+
+
+}
+.form-label{
+    font-weight: bolder;
+    color:black;
+
+}
+.contaner{
+    display: grid;
+    margin: 10rem auto 0 auto;
+    justify-content: center;
+    background-color: rgba(58, 151, 233, 0.356);
+    background-size: 20rem;
+    width: 70rem;
+    border-radius: 3.5rem;
+    
+}
+.btn-primary{
+   background-color: rgb(53, 79, 225);
+   width: 10rem;
+}
+.btn:hover {
+    box-shadow:0 8px 16px 0 rgba(0,0,0,0.6);
+    background-color: white;
+    border: 2px solid rgb(61, 61, 255);
+    font-weight: bolder;
+    outline: 1rem;
+    color: rgb(55, 55, 255);
+
+}
+
+
+
+input[type="email"]:focus,
+input[type="password"]:focus{
+border-color: rgb(11, 213, 24);
+outline: 2rem;
+padding: 0.5rem 0.7rem;
+box-shadow:0 5px 8px 0 rgba(0,0,0,0.6);
+}
+.form-check{
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: black;
+    font-weight: bolder;
+}
+
