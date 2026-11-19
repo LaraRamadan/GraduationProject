@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Somo, Cura - الملف الشخصي للمريض</title>
+    <!-- Bootstrap 5 RTL CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Font (Cairo) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #fdf2f8;
+            color: #1e293b;
+            min-height: 100vh;
+            padding: 40px 0;
+        }
+
+        .card-custom {
+            background: #ffffff;
+            border-radius: 1rem;
+            border: 1px solid #fbcfe8;
+            box-shadow: 0 10px 30px rgba(219, 39, 119, 0.04);
+            padding: 30px;
+        }
+
+        .btn-custom-pink {
+            background-color: #db2777;
+            border-color: #db2777;
+            color: white;
+            font-weight: 600;
+            border-radius: 50rem;
+            padding: 0.5rem 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-custom-pink:hover {
+            background-color: #be185d;
+            border-color: #be185d;
+            color: white;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background-color: #fce7f3;
+            color: #db2777;
+            font-size: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 0 auto 20px auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                <!-- زر العودة -->
+                <div class="mb-3">
+                    <a href="patient-dashboard.html" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                        <i class="bi bi-arrow-right me-1"></i> العودة لوحة التحكم
+                    </a>
+                </div>
+
+                <!-- بطاقة الملف الشخصي -->
+                <div class="card-custom">
+                    <div class="text-center">
+                        <div class="profile-avatar">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <h3 class="fw-bold text-dark mb-1" id="profile-name">اسم المريض</h3>
+                        <p class="text-muted small">مريض مسجل في نظام Somo, Cura</p>
+                    </div>
+
+                    <hr class="my-4 text-muted opacity-25">
+
+                    <h5 class="fw-bold mb-3" style="color: #db2777;"><i class="bi bi-info-circle me-2"></i>المعلومات
+                        الشخصية والطبية</h5>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded-3">
+                                <span class="text-muted small d-block">البريد الإلكتروني</span>
+                                <strong class="text-dark">patient@somocura.com</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded-3">
+                                <span class="text-muted small d-block">رقم الهاتف</span>
+                                <strong class="text-dark">+962 7XXXXXXXX</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 bg-light rounded-3">
+                                <span class="text-muted small d-block">فصيلة الدم</span>
+                                <strong class="text-dark">O+</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 bg-light rounded-3">
+                                <span class="text-muted small d-block">العمر</span>
+                                <strong class="text-dark">65 سنة</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 bg-light rounded-3">
+                                <span class="text-muted small d-block">الحالة الصحية العامة</span>
+                                <strong class="text-success">مستقرة (Stable)</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <!-- زر التعديل الجديد الذي يفتح نافذة التعديل -->
+                        <div class="text-center">
+                            <button class="btn btn-custom-pink px-4" data-bs-toggle="modal"
+                                data-bs-target="#editProfileModal">
+                                <i class="bi bi-pencil-square me-1"></i> تعديل بيانات الملف الشخصي
+                            </button>
+                        </div>
+
+                        <!-- Modal نافذة تعديل البيانات المنبثقة -->
+                        <div class="modal fade" id="editProfileModal" tabindex="-1"
+                            aria-labelledby="editProfileModalLabel" aria-hidden="true"
+                            style="font-family: 'Cairo', sans-serif;">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem;">
+                                    <div class="modal-header bg-light border-0">
+                                        <h5 class="modal-title fw-bold text-dark" id="editProfileModalLabel"><i
+                                                class="bi bi-pencil-square text-custom-pink me-2"></i>تعديل بيانات
+                                            الحساب</h5>
+                                        <button type="button" class="btn-close m-0" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body p-4">
+                                        <form id="edit-profile-form">
+                                            <div class="mb-3 text-end">
+                                                <label class="form-label fw-bold small text-muted">الاسم الكامل</label>
+                                                <input type="text" class="form-control" id="edit-name"
+                                                    value="اسم المريض" required>
+                                            </div>
+                                            <div class="mb-3 text-end">
+                                                <label class="form-label fw-bold small text-muted">رقم الهاتف</label>
+                                                <input type="text" class="form-control" id="edit-phone"
+                                                    value="+962 7XXXXXXXX" required>
+                                            </div>
+                                            <div class="mb-3 text-end">
+                                                <label class="form-label fw-bold small text-muted">العمر</label>
+                                                <input type="text" class="form-control" id="edit-age" value="65 سنة"
+                                                    required>
+                                            </div>
+                                            <div class="text-center mt-4">
+                                                <button type="button" class="btn btn-custom-pink w-100 py-2 fw-bold"
+                                                    onclick="saveProfileChanges()">حفظ التعديلات</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- كود الجافاسكريفت لحفظ وتحديث البيانات مباشرة -->
+                        <script>
+                            function saveProfileChanges() {
+                                const newName = document.getElementById('edit-name').value;
+                                const newPhone = document.getElementById('edit-phone').value;
+                                const newAge = document.getElementById('edit-age').value;
+
+                                // تخزين الاسم في الـ LocalStorage ليظهر في الداشبورد والملف الشخصي
+                                localStorage.setItem("userName", newName);
+
+                                // تحديث الاسم بالعرض مباشرة
+                                document.getElementById("profile-name").innerText = newName;
+
+                                // إغلاق النافذة المنبثقة تلقائياً
+                                const modalElement = document.getElementById('editProfileModal');
+                                const modal = bootstrap.Modal.getInstance(modalElement);
+                                modal.hide();
+
+                                alert('تم تحديث وحفظ بيانات الملف الشخصي بنجاح!');
+                            }
+                        </script>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- جافاسكريفت لجلب اسم المستخدم من الـ LocalStorage تلقائياً -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const fullName = localStorage.getItem("userName") || "مستخدم Somo, Cura";
+            document.getElementById("profile-name").innerText = fullName;
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Somo, Cura - لوحة تحكم المريض</title>
+    <!-- Bootstrap 5 RTL CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Font (Cairo) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #fdf2f8;
+            color: #1e293b;
+            min-height: 100vh;
+            transition: font-size 0.3s ease;
+        }
+
+        /* Senior Mode Styles (وضع كبار السن - خطوط وأزرار أكبر وأوضح) */
+        body.senior-mode {
+            font-size: 1.2rem !important;
+        }
+
+        body.senior-mode h3 {
+            font-size: 2rem !important;
+        }
+
+        body.senior-mode h4,
+        body.senior-mode h5 {
+            font-size: 1.5rem !important;
+        }
+
+        body.senior-mode .btn,
+        body.senior-mode .nav-link,
+        body.senior-mode p,
+        body.senior-mode span {
+            font-size: 1.15rem !important;
+        }
+
+        body.senior-mode .card-custom {
+            border-width: 2px !important;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background-color: #ffffff;
+            border-left: 1px solid #fbcfe8;
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 260px;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .sidebar-brand {
+            font-weight: 800;
+            color: #db2777;
+            font-size: 1.4rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .nav-link {
+            color: #64748b;
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 10px 15px;
+            margin-bottom: 5px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: #fce7f3;
+            color: #db2777;
+        }
+
+        .nav-link i {
+            margin-left: 10px;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            padding: 30px;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                min-height: auto;
+            }
+
+            .main-content {
+                margin-right: 0;
+            }
+        }
+
+        /* Top Navbar */
+        .top-navbar {
+            background: #ffffff;
+            border-radius: 1rem;
+            padding: 15px 25px;
+            box-shadow: 0 4px 20px rgba(219, 39, 119, 0.04);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Cards */
+        .card-custom {
+            background: #ffffff;
+            border-radius: 1rem;
+            border: 1px solid #fbcfe8;
+            box-shadow: 0 10px 30px rgba(219, 39, 119, 0.04);
+            padding: 20px;
+            height: 100%;
+        }
+
+        .btn-custom-pink {
+            background-color: #db2777;
+            border-color: #db2777;
+            color: white;
+            font-weight: 600;
+            border-radius: 50rem;
+            padding: 0.5rem 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-custom-pink:hover {
+            background-color: #be185d;
+            border-color: #be185d;
+            color: white;
+        }
+
+        .text-custom-pink {
+            color: #db2777 !important;
+        }
+
+        .badge-risk-low {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-risk-high {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .department-card {
+            cursor: pointer;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .department-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(219, 39, 119, 0.15) !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Navbar -->
+        <div class="top-navbar">
+            <div>
+                <!-- تم جعل الاسم ديناميكياً ليأخذ الاسم الأول فقط -->
+                <h4 class="fw-bold mb-0 text-dark" id="welcome-user-name">مرحباً بك 👋</h4>
+                <p class="text-muted small mb-0">لوحة تحكم المريض - متابعة الحالة الصحية والروتين اليومي</p>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <!-- Senior Mode Toggle Button -->
+                <button onclick="toggleSeniorMode()" id="senior-mode-btn"
+                    class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-bold">
+                    <i class="bi bi-eye-fill me-1"></i> وضع كبار السن (Senior Mode)
+                </button>
+
+                <!-- Status Badge -->
+                <span id="risk-status-badge" class="badge badge-risk-low px-3 py-2 rounded-pill fw-bold">
+                    <i class="bi bi-shield-check me-1"></i> الحالة مستقرة (Stable)
+                </span>
+                <!-- زر الإشعارات (الجرس) -->
+                <div class="dropdown">
+                    <button class="btn btn-light border-0 rounded-circle position-relative p-2" type="button"
+                        data-bs-toggle="dropdown" aria-expanded="false" title="التنبيهات والإشعارات"
+                        style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-bell-fill fs-5 text-custom-pink"></i>
+                        <span
+                            class="position-absolute top-0 start-0 translate-middle p-1 bg-danger border border-light rounded-circle">
+                            <span class="visually-hidden">إشعارات جديدة</span>
+                        </span>
+                    </button>
+
+                    <!-- القائمة المنبثقة للإشعارات -->
+                    <ul class="dropdown-menu dropdown-menu-start shadow-sm border-0 p-3 rounded-4 mt-2"
+                        style="width: 320px; font-family: 'Cairo', sans-serif; text-align: right;">
+                        <li class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                            <h6 class="fw-bold text-dark m-0"><i class="bi bi-bell me-1"></i> التنبيهات الطبية</h6>
+                            <span class="badge bg-custom-pink rounded-pill">إشعاران</span>
+                        </li>
+                        <li class="mb-2">
+                            <div class="p-2 rounded-3 bg-light small">
+                                <div class="fw-bold text-dark"><i class="bi bi-calendar-check text-success me-1"></i>
+                                    تأكيد موعد</div>
+                                <div class="text-muted">تم تأكيد موعدك في قسم الباطنية والسكري.</div>
+                                <div class="text-end text-muted" style="font-size: 0.75rem;">منذ ساعتين</div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="p-2 rounded-3 bg-light small">
+                                <div class="fw-bold text-dark"><i class="bi bi-robot text-custom-pink me-1"></i> توصية
+                                    الذكاء الاصطناعي</div>
+                                <div class="text-muted">لا تنسَ قياس ضغط الدم الصباحي.</div>
+                                <div class="text-end text-muted" style="font-size: 0.75rem;">منذ 5 ساعات</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="dropdown">
+                    <button class="btn bg-light p-2 rounded-circle text-custom-pink fw-bold border-0 dropdown-toggle"
+                        type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                        style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                        <i class="bi bi-person-fill fs-5"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2"
+                        aria-labelledby="profileDropdown" style="font-family: 'Cairo', sans-serif; text-align: right;">
+                        <li>
+                            <h6 class="dropdown-header text-muted fw-bold">حساب المريض</h6>
+                        </li>
+                        <!-- رابط صفحة الملف الشخصي -->
+                        <li><a class="dropdown-item py-2" href="profile.html"><i
+                                    class="bi bi-person-circle me-2 text-pink"></i> الملف الشخصي</a></li>
+                        <!-- رابط صفحة الإعدادات -->
+                        <li><a class="dropdown-item py-2" href="settings.html"><i
+                                    class="bi bi-gear-fill me-2 text-secondary"></i> الإعدادات</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <!-- رابط تسجيل الخروج -->
+                        <li><a class="dropdown-item py-2 text-danger" href="llogin.html"><i
+                                    class="bi bi-box-arrow-right me-2"></i> تسجيل الخروج</a></li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- AI Risk Status Card (بطاقة ملخص الحالة الصحية للذكاء الاصطناعي) -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div id="ai-risk-card" class="card-custom p-3 border-success" style="background-color: #f0fdf4;">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-3">
+                            <div id="ai-risk-icon-box"
+                                class="bg-success text-white p-3 rounded-circle fs-4 d-flex align-items-center justify-content-center"
+                                style="width: 50px; height: 50px;">
+                                <i class="bi bi-shield-check"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1" id="ai-risk-title">حالة النظام التنبؤي: مستقر (Stable)</h5>
+                                <p class="text-muted mb-0 small" id="ai-risk-desc">لا توجد مؤشرات خطر حالية. العوامل
+                                    الحيوية ضمن النطاق الطبيعي الآمن.</p>
+                            </div>
+                        </div>
+                        <button onclick="toggleRiskStatusSimulation()" class="btn btn-sm btn-outline-dark">تبديل محاكاة
+                            الحالة (تجريبي)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats Row -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card-custom">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted small fw-bold">قراءة ضغط الدم</span>
+                        <div class="text-custom-pink bg-light p-2 rounded-3"><i class="bi bi-activity fs-5"></i></div>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-1">120 / 80</h3>
+                    <p class="text-success small mb-0"><i class="bi bi-check-circle me-1"></i> ضمن المعدل الطبيعي</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-custom">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted small fw-bold">مستوى السكر</span>
+                        <div class="text-custom-pink bg-light p-2 rounded-3"><i class="bi bi-droplet-half fs-5"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-1">95 mg/dL</h3>
+                    <p class="text-success small mb-0"><i class="bi bi-check-circle me-1"></i> ممتاز صائم</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-custom">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted small fw-bold">معدل النوم والنشاط</span>
+                        <div class="text-custom-pink bg-light p-2 rounded-3"><i class="bi bi-moon-stars fs-5"></i></div>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-1">7.5 ساعات</h3>
+                    <p class="text-muted small mb-0">جودة النوم: جيدة جداً</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daily Routine Large Button Section (كبسة الروتين اليومي الكبيرة) -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card-custom text-center p-4" style="background: linear-gradient(135deg, #fdf2f8, #fce7f3);">
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-calendar-check text-custom-pink me-2"></i>تسجيل
+                        الروتين اليومي والأدوية</h5>
+                    <p class="text-muted small mb-4">انقر على الزر أدناه لتسجيل حالتك اليومية، خطوات المشي، وأخذ الأدوية
+                        بسهولة.</p>
+                    <button class="btn btn-custom-pink btn-lg rounded-pill px-5 py-3 fw-bold shadow-sm"
+                        data-bs-toggle="modal" data-bs-target="#dailyRoutineModal">
+                        <i class="bi bi-check2-circle me-2"></i> تسجيل الروتين اليومي الآن (Daily Routine)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Predictive Health Twin & PharmaGuard Section -->
+        <div class="row g-4">
+            <!-- Predictive Twin Summary -->
+            <div class="col-lg-8">
+                <div class="card-custom p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold text-dark mb-0"><i class="bi bi-cpu text-custom-pink me-2"></i>تحليل التوأم
+                            الصحي التنبؤي</h5>
+                        <span class="badge bg-light text-secondary">تم التحديث اليوم</span>
+                    </div>
+                    <p class="text-muted small mb-4">يعتمد هذا التحليل على قراءات روتينك الأسبوعي ونماذج اكتشاف الشذوذ
+                        (Anomaly Detection) للتنبؤ بأي تغير مستقبلي.</p>
+
+                    <div class="p-3 bg-light rounded-3 mb-3 border-start border-4"
+                        style="border-color: #db2777 !important;">
+                        <h6 class="fw-bold text-dark mb-1">توصية الذكاء الاصطناعي:</h6>
+                        <p class="text-muted small mb-0">الاستقرار ملحوظ في قراءات الضغط والسكر. يُنصح بالاستمرار على
+                            جدول المشي الصباحي لتعزيز كفاءة الدورة الدموية.</p>
+                    </div>
+
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button class="btn btn-custom-pink rounded-pill px-4 fw-bold" data-bs-toggle="modal"
+                            data-bs-target="#newReadingModal">
+                            <i class="bi bi-plus-circle me-1"></i> تسجيل قراءة جديدة
+                        </button>
+
+                        <button class="btn btn-outline-secondary rounded-pill px-4 fw-bold" data-bs-toggle="modal"
+                            data-bs-target="#timelineModal">
+                            <i class="bi bi-clock-history me-1"></i> عرض التقرير الزمني (Timeline)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PharmaGuard Quick Card -->
+            <div class="col-lg-4">
+                <div class="card-custom p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold text-dark mb-0"><i class="bi bi-capsule text-custom-pink me-2"></i>مساعد
+                            الأدوية</h5>
+                        <span class="badge bg-light text-custom-pink">جداول الجرعات</span>
+                    </div>
+                    <p class="text-muted small mb-3">الوصفات الطبية المعتمدة وجداول الأدوية الخاصة بك:</p>
+
+                    <div class="p-2 border rounded-3 mb-2 bg-white d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold small mb-0">فيتامين د (Vitamin D)</h6>
+                            <small class="text-muted" style="font-size: 0.75rem;">حبة واحدة بعد الغداء</small>
+                        </div>
+                        <span class="badge bg-success-subtle text-success">مؤكد</span>
+                    </div>
+
+                    <div class="p-2 border rounded-3 mb-3 bg-white d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold small mb-0">بانادول (Panadol)</h6>
+                            <small class="text-muted" style="font-size: 0.75rem;">عند اللزوم</small>
+                        </div>
+                        <span class="badge bg-warning-subtle text-warning">مراجعة الصيدلي</span>
+                    </div>
+
+                    <button class="btn btn-outline-secondary rounded-pill px-4 fw-bold w-100 py-2"
+                        data-bs-toggle="modal" data-bs-target="#uploadPrescriptionModal">
+                        <i class="bi bi-camera me-1"></i> رفع وصفة جديدة (OCR)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle & Dynamic Name Script -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // جلب اسم المستخدم ديناميكياً وعرض الاسم الأول فقط
+        document.addEventListener("DOMContentLoaded", function () {
+            const fullName = localStorage.getItem("userName") || "مستخدم Somo, Cura";
+            const firstName = fullName.split(" ")[0]; // أخذ الاسم الأول فقط
+            document.getElementById("welcome-user-name").innerText = `مرحباً بك، ${firstName} 👋`;
+        });
+
+        // تفعيل وضع كبار السن (Senior Mode Toggle)
+        function toggleSeniorMode() {
+            document.body.classList.toggle('senior-mode');
+            const btn = document.getElementById('senior-mode-btn');
+            if (document.body.classList.contains('senior-mode')) {
+                btn.classList.remove('btn-outline-secondary');
+                btn.classList.add('btn-dark');
+                btn.innerHTML = `<i class="bi bi-eye-slash-fill me-1"></i> إيقاف وضع كبار السن`;
+            } else {
+                btn.classList.remove('btn-dark');
+                btn.classList.add('btn-outline-secondary');
+                btn.innerHTML = `<i class="bi bi-eye-fill me-1"></i> وضع كبار السن (Senior Mode)`;
+            }
+        }
+
+        // محاكاة تبديل الحالة الصحية (Stable / Potential Risk) لتغيير ألوان البطاقات بين الأخضر والأحمر
+        let isSimulatedRisk = false;
+        function toggleRiskStatusSimulation() {
+            isSimulatedRisk = !isSimulatedRisk;
+            const badge = document.getElementById('risk-status-badge');
+            const card = document.getElementById('ai-risk-card');
+            const iconBox = document.getElementById('ai-risk-icon-box');
+            const title = document.getElementById('ai-risk-title');
+            const desc = document.getElementById('ai-risk-desc');
+
+            if (isSimulatedRisk) {
+                // حالة خطر محتمل (Potential Risk - أحمر)
+                badge.className = "badge badge-risk-high px-3 py-2 rounded-pill fw-bold";
+                badge.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i> خطر محتمل (Potential Risk)`;
+
+                card.className = "card-custom p-3 border-danger";
+                card.style.backgroundColor = "#fef2f2";
+
+                iconBox.className = "bg-danger text-white p-3 rounded-circle fs-4 d-flex align-items-center justify-content-center";
+                iconBox.innerHTML = `<i class="bi bi-exclamation-triangle"></i>`;
+
+                title.innerText = "حالة النظام التنبؤي: خطر محتمل (Potential Risk)";
+                desc.innerText = "تم رصد تغير طفيف في مؤشرات ضغط الدم والنشاط. يرجى مراجعة الطبيب أو التواصل مع السكرتيرة فوراً.";
+            } else {
+                // حالة مستقرة (Stable - أخضر)
+                badge.className = "badge badge-risk-low px-3 py-2 rounded-pill fw-bold";
+                badge.innerHTML = `<i class="bi bi-shield-check me-1"></i> الحالة مستقرة (Stable)`;
+
+                card.className = "card-custom p-3 border-success";
+                card.style.backgroundColor = "#f0fdf4";
+
+                iconBox.className = "bg-success text-white p-3 rounded-circle fs-4 d-flex align-items-center justify-content-center";
+                iconBox.innerHTML = `<i class="bi bi-shield-check"></i>`;
+
+                title.innerText = "حالة النظام التنبؤي: مستقر (Stable)";
+                desc.innerText = "لا توجد مؤشرات خطر حالية. العوامل الحيوية ضمن النطاق الطبيعي الآمن.";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            // فحص الذاكرة أول ما تفتح الصفحة
+            if (localStorage.getItem("seniorMode") === "true") {
+                // تفعيل الكلاس مباشرة لتكبير الخط
+                document.body.classList.add('senior-mode');
+
+                // تغيير شكل زر التبديل العلوي لو موجود
+                const btn = document.getElementById('senior-mode-btn');
+                if (btn) {
+                    btn.classList.remove('btn-outline-secondary');
+                    btn.classList.add('btn-dark');
+                    btn.innerHTML = `<i class="bi bi-eye-slash-fill me-1"></i> إيقاف وضع كبار السن`;
+                }
+            }
+        });
+    </script>
+
+    <!-- 1. زر المساعد الذكي العائم -->
+    <button type="button" onclick="toggleChatbot()" class="btn shadow-lg" title="المساعد الذكي"
+        style="position: fixed; bottom: 25px; left: 25px; z-index: 1050; border-radius: 50px; background-color: #db2777; color: white; padding: 10px 20px; border: none; font-family: 'Cairo', sans-serif; cursor: pointer;">
+        <span class="ms-2">المساعد الذكي</span> <i class="bi bi-chat-dots-fill"></i>
+    </button>
+
+    <!-- 2. نافذة الشات بوت المنبثقة الثابتة -->
+    <div id="chatbot-window"
+        style="display: none; position: fixed; bottom: 95px; left: 25px; width: 380px; height: 520px; background: white; border-radius: 1rem; box-shadow: 0 15px 40px rgba(0,0,0,0.15); border: 1px solid #fbcfe8; overflow: hidden; z-index: 9999;">
+        <!-- رأس نافذة الشات -->
+        <div
+            style="background: #db2777; color: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; font-family: 'Cairo', sans-serif;">
+            <span class="fw-bold small"><i class="bi bi-robot me-1"></i> المساعد الذكي - Somo, Cura</span>
+            <button onclick="toggleChatbot()"
+                style="background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer;">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <!-- محتوى ملف bot.html بداخله -->
+        <iframe src="bot.html" style="width: 100%; height: calc(100% - 45px); border: none;"></iframe>
+    </div>
+
+    <!-- 3. جافاسكريبت لتشغيل النافذة وإخفائها -->
+    <script>
+        function toggleChatbot() {
+            const chatbot = document.getElementById('chatbot-window');
+            if (chatbot.style.display === 'none' || chatbot.style.display === '') {
+                chatbot.style.display = 'block';
+            } else {
+                chatbot.style.display = 'none';
+            }
+        }
+    </script>
+
+    <!-- Modal نافذة تسجيل الروتين اليومي -->
+    <div class="modal fade" id="dailyRoutineModal" tabindex="-1" aria-labelledby="dailyRoutineModalLabel"
+        aria-hidden="true" style="font-family: 'Cairo', sans-serif;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem;">
+                <div class="modal-header bg-light border-0">
+                    <h5 class="modal-title fw-bold text-dark" id="dailyRoutineModalLabel">
+                        <i class="bi bi-calendar-check text-custom-pink me-2"></i>تسجيل الروتين اليومي والأدوية
+                    </h5>
+                    <button type="button" class="btn-close m-0" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 text-end">
+                    <form id="routine-form" onsubmit="submitRoutine(event)">
+                        <!-- حالة الأدوية -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">هل قمت بتناول أدوية اليوم؟</label>
+                            <select class="form-select" id="medication-status" required>
+                                <option value="yes">نعم، تم تناول الجرعات بالكامل</option>
+                                <option value="partial">تم تناول بعض الجرعات</option>
+                                <option value="no">لم أتناول الأدوية بعد</option>
+                            </select>
+                        </div>
+
+                        <!-- عدد خطوات المشي -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">عدد خطوات المشي التقريبية اليوم</label>
+                            <input type="number" class="form-control" id="steps-count" placeholder="مثال: 3500 خطوة"
+                                required>
+                        </div>
+
+                        <!-- الشعور العام -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">كيف تشعر اليوم؟</label>
+                            <select class="form-select" id="feeling-status" required>
+                                <option value="good">بخير ومستقر</option>
+                                <option value="tired">أشعر ببعض التعب أو الإرهاق</option>
+                                <option value="pain">أعاني من آلام غير معتادة</option>
+                            </select>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-custom-pink w-100 py-2 fw-bold rounded-pill">
+                                إرسال وتحديث الروتين
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- سكريبت حفظ وتأكيد إرسال الروتين -->
+    <script>
+        function submitRoutine(event) {
+            event.preventDefault(); // منع إعادة تحميل الصفحة
+
+            // إغلاق النافذة المنبثقة
+            const modalElement = document.getElementById('dailyRoutineModal');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            modal.hide();
+
+            alert('تم تسجيل الروتين اليومي بنجاح! سيقوم نظام التوأم الرقمي (AI) بتحليل حالتك الآن.');
+        }
+    </script>
+
+    <!-- Modal نافذة تسجيل قراءة الضغط والسكر الجديدة -->
+    <div class="modal fade" id="newReadingModal" tabindex="-1" aria-labelledby="newReadingModalLabel" aria-hidden="true"
+        style="font-family: 'Cairo', sans-serif;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem;">
+                <div class="modal-header bg-light border-0">
+                    <h5 class="modal-title fw-bold text-dark" id="newReadingModalLabel">
+                        <i class="bi bi-heart-pulse text-custom-pink me-2"></i>تسجيل قراءة جديدة (ضغط وسكر)
+                    </h5>
+                    <button type="button" class="btn-close m-0" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 text-end">
+                    <form id="reading-form" onsubmit="submitNewReading(event)">
+                        <!-- قراءة ضغط الدم -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">قراءة ضغط الدم (مثلاً: 120/80)</label>
+                            <input type="text" class="form-control" id="blood-pressure" placeholder="120/80" required>
+                        </div>
+
+                        <!-- قراءة السكر -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">قراءة السكر (mg/dL)</label>
+                            <input type="number" class="form-control" id="blood-sugar" placeholder="مثال: 110" required>
+                        </div>
+
+                        <!-- ملاحظات إضافية -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">ملاحظات أو أعراض شعرت بها</label>
+                            <textarea class="form-control" id="reading-notes" rows="2"
+                                placeholder="لا توجد أعراض، شعور عام جيد..."></textarea>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-custom-pink w-100 py-2 fw-bold rounded-pill">
+                                حفظ القراءة وإرسالها للتحليل
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- سكريبت حفظ القراءة الجديدة -->
+    <script>
+        function submitNewReading(event) {
+            event.preventDefault(); // منع إعادة تحميل الصفحة
+
+            const bp = document.getElementById('blood-pressure').value;
+            const sugar = document.getElementById('blood-sugar').value;
+
+            // إغلاق النافذة المنبثقة
+            const modalElement = document.getElementById('newReadingModal');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            modal.hide();
+
+            alert(`تم حفظ قراءة الضغط (${bp}) والسكر (${sugar}) بنجاح! سيتم تحديث تقرير التوأم الرقمي بناءً عليها.`);
+        }
+    </script>
+
+    <!-- Modal نافذة التقرير الزمني (Timeline) -->
+    <div class="modal fade" id="timelineModal" tabindex="-1" aria-labelledby="timelineModalLabel" aria-hidden="true"
+        style="font-family: 'Cairo', sans-serif;">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem;">
+                <div class="modal-header bg-light border-0">
+                    <h5 class="modal-title fw-bold text-dark" id="timelineModalLabel">
+                        <i class="bi bi-clock-history text-custom-pink me-2"></i>التقرير الزمني للقراءات السابقة
+                        (Timeline)
+                    </h5>
+                    <button type="button" class="btn-close m-0" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 text-end">
+                    <div class="timeline-container">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-dark"><i
+                                            class="bi bi-circle-fill text-success small me-2"></i>قراءة ضغط الدم: 120/80
+                                        | السكر: 110</h6>
+                                    <p class="text-muted small mb-0">الحالة: مستقرة - تم الفحص صباحاً</p>
+                                </div>
+                                <span class="badge bg-light text-muted border px-3 py-2 rounded-pill">اليوم، 08:30
+                                    ص</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-dark"><i
+                                            class="bi bi-circle-fill text-success small me-2"></i>قراءة ضغط الدم: 118/79
+                                        | السكر: 105</h6>
+                                    <p class="text-muted small mb-0">الحالة: مستقرة - التزام بالروتين والأدوية</p>
+                                </div>
+                                <span class="badge bg-light text-muted border px-3 py-2 rounded-pill">أمس</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-dark"><i
+                                            class="bi bi-circle-fill text-warning small me-2"></i>قراءة ضغط الدم: 130/85
+                                        | السكر: 125</h6>
+                                    <p class="text-muted small mb-0">الحالة: تنبيه بسيطة - ارتفاع طفيف مؤقت</p>
+                                </div>
+                                <span class="badge bg-light text-muted border px-3 py-2 rounded-pill">قبل 3 أيام</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button type="button" class="btn btn-outline-secondary px-4 rounded-pill"
+                            data-bs-dismiss="modal">إغلاق</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal نافذة رفع وصفة جديدة عبر OCR -->
+    <div class="modal fade" id="uploadPrescriptionModal" tabindex="-1" aria-labelledby="uploadPrescriptionModalLabel"
+        aria-hidden="true" style="font-family: 'Cairo', sans-serif;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem;">
+                <div class="modal-header bg-light border-0">
+                    <h5 class="modal-title fw-bold text-dark" id="uploadPrescriptionModalLabel">
+                        <i class="bi bi-camera text-custom-pink me-2"></i>رفع وصفة طبية جديدة (OCR)
+                    </h5>
+                    <button type="button" class="btn-close m-0" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 text-end">
+                    <form onsubmit="submitPrescription(event)">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">اختر صورة الوصفة الطبية أو
+                                التقرير</label>
+                            <input type="file" class="form-control" id="prescription-file" accept="image/*" required>
+                            <div class="form-text small text-muted mt-1">سيقوم نظام الـ OCR باستخراج الأدوية وإضافتها
+                                لجدولك تلقائياً.</div>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-custom-pink w-100 py-2 fw-bold rounded-pill">
+                                <i class="bi bi-cpu me-1"></i> رفع وتحليل الوصفة بالذكاء الاصطناعي
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- سكريبت الرفع -->
+    <script>
+        function submitPrescription(event) {
+            event.preventDefault();
+            bootstrap.Modal.getInstance(document.getElementById('uploadPrescriptionModal')).hide();
+            alert('تم رفع الوصفة بنجاح! جاري استخراج الأدوية عبر تقنية التعرف الضوئي (OCR)...');
+        }
+    </script>
+
+    <!-- 1. نافذة الروتين اليومي -->
+    <div class="modal fade" id="dailyRoutineModal" tabindex="-1" aria-labelledby="dailyRoutineModalLabel"
+        aria-hidden="true" style="font-family: 'Cairo', sans-serif;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem;">
+                <div class="modal-header bg-light border-0">
+                    <h5 class="modal-title fw-bold text-dark" id="dailyRoutineModalLabel">
+                        <i class="bi bi-calendar-check text-custom-pink me-2"></i>تسجيل الروتين اليومي والأدوية
+                    </h5>
+                    <button type="button" class="btn-close m-0" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 text-end">
+                    <form onsubmit="submitRoutine(event)">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">هل قمت بتناول أدوية اليوم؟</label>
+                            <select class="form-select" required>
+                                <option value="yes">نعم، تم تناول الجرعات بالكامل</option>
+                                <option value="partial">تم تناول بعض الجرعات</option>
+                                <option value="no">لم أتناول الأدوية بعد</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">عدد خطوات المشي التقريبية اليوم</label>
+                            <input type="number" class="form-control" placeholder="مثال: 3500 خطوة" required>
+                        </div>
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-custom-pink w-100 py-2 fw-bold rounded-pill">إرسال
+                                وتحديث الروتين</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. نافذة قراءة الضغط والسكر -->
+    <div class="modal fade" id="newReadingModal" tabindex="-1" aria-labelledby="newReadingModalLabel" aria-hidden="true"
+        style="font-family: 'Cairo', sans-serif;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem;">
+                <div class="modal-header bg-light border-0">
+                    <h5 class="modal-title fw-bold text-dark" id="newReadingModalLabel">
+                        <i class="bi bi-heart-pulse text-custom-pink me-2"></i>تسجيل قراءة جديدة (ضغط وسكر)
+                    </h5>
+                    <button type="button" class="btn-close m-0" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 text-end">
+                    <form onsubmit="submitNewReading(event)">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">قراءة ضغط الدم (مثلاً: 120/80)</label>
+                            <input type="text" class="form-control" id="bp-val" placeholder="120/80" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">قراءة السكر (mg/dL)</label>
+                            <input type="number" class="form-control" id="sugar-val" placeholder="مثال: 110" required>
+                        </div>
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-custom-pink w-100 py-2 fw-bold rounded-pill">حفظ
+                                القراءة وإرسالها للتحليل</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. نافذة التقرير الزمني (Timeline) -->
+    <div class="modal fade" id="timelineModal" tabindex="-1" aria-labelledby="timelineModalLabel" aria-hidden="true"
+        style="font-family: 'Cairo', sans-serif;">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem;">
+                <div class="modal-header bg-light border-0">
+                    <h5 class="modal-title fw-bold text-dark" id="timelineModalLabel">
+                        <i class="bi bi-clock-history text-custom-pink me-2"></i>التقرير الزمني للقراءات السابقة
+                        (Timeline)
+                    </h5>
+                    <button type="button" class="btn-close m-0" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 text-end">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                            <div>
+                                <h6 class="fw-bold mb-1 text-dark"><i
+                                        class="bi bi-circle-fill text-success small me-2"></i>ضغط: 120/80 | سكر: 110
+                                </h6>
+                                <p class="text-muted small mb-0">الحالة: مستقرة - صباحاً</p>
+                            </div>
+                            <span class="badge bg-light text-muted border px-3 py-2 rounded-pill">اليوم</span>
+                        </li>
+                    </ul>
+                    <div class="text-center mt-4">
+                        <button type="button" class="btn btn-outline-secondary px-4 rounded-pill"
+                            data-bs-dismiss="modal">إغلاق</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. نافذة رفع الوصفة الطبية (OCR) -->
+    <div class="modal fade" id="uploadPrescriptionModal" tabindex="-1" aria-labelledby="uploadPrescriptionModalLabel"
+        aria-hidden="true" style="font-family: 'Cairo', sans-serif;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem;">
+                <div class="modal-header bg-light border-0">
+                    <h5 class="modal-title fw-bold text-dark" id="uploadPrescriptionModalLabel">
+                        <i class="bi bi-camera text-custom-pink me-2"></i>رفع وصفة طبية جديدة (OCR)
+                    </h5>
+                    <button type="button" class="btn-close m-0" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 text-end">
+                    <form onsubmit="submitPrescription(event)">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">اختر صورة الوصفة الطبية</label>
+                            <input type="file" class="form-control" accept="image/*" required>
+                        </div>
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-custom-pink w-100 py-2 fw-bold rounded-pill">رفع وتحليل
+                                الوصفة</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- قسم أقسام المستشفى والعيادات المتخصصة الشامل -->
+    <!-- قسم أقسام المستشفى والعيادات المتخصصة -->
+    <div class="container my-4" id="departments-section"></div>
+    <div class="container my-4">
+        <div class="d-flex align-items-center mb-3">
+            <i class="bi bi-hospital-fill text-custom-pink fs-4 me-2"></i>
+            <h4 class="fw-bold text-dark mb-0">أقسام المستشفى والعيادات المتخصصة</h4>
+        </div>
+        <p class="text-muted small mb-4">انقر على أي قسم لاستعراض سجل قراءاتك السابقة، نصائح الذكاء الاصطناعي المخصصة،
+            وحجز موعد:</p>
+
+        <!-- شبكة الأقسام والعيادات -->
+        <div class="row g-3">
+
+            <!-- 1. قسم القلب والأوعية -->
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white text-center department-card"
+                    onclick="window.location.href='department.html?type=heart_vascular'">
+                    <div class="p-3 rounded-circle bg-light text-custom-pink fs-3 mx-auto mb-3"
+                        style="width: 65px; height: 65px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-heart-pulse"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">قسم القلب والأوعية</h5>
+                    <p class="text-muted small mb-0">متابعة ضغط الدم والتوأم الرقمي.</p>
+                </div>
+            </div>
+
+            <!-- 2. قسم الباطنية والسكري -->
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white text-center department-card"
+                    onclick="window.location.href='department.html?type=diabetes'">
+                    <div class="p-3 rounded-circle bg-light text-custom-pink fs-3 mx-auto mb-3"
+                        style="width: 65px; height: 65px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-capsule"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">قسم الباطنية والسكري</h5>
+                    <p class="text-muted small mb-0">إدارة قراءات السكر والجرعات.</p>
+                </div>
+            </div>
+
+            <!-- 3. قسم الفحوصات المخبرية -->
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white text-center department-card"
+                    onclick="window.location.href='department.html?type=labs'">
+                    <div class="p-3 rounded-circle bg-light text-custom-pink fs-3 mx-auto mb-3"
+                        style="width: 65px; height: 65px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-activity"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">قسم الفحوصات المخبرية</h5>
+                    <p class="text-muted small mb-0">تحليل التقارير والنتائج السابقة.</p>
+                </div>
+            </div>
+
+            <!-- 4. قسم الروشتات والوصفات -->
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white text-center department-card"
+                    onclick="window.location.href='department.html?type=prescriptions'">
+                    <div class="p-3 rounded-circle bg-light text-custom-pink fs-3 mx-auto mb-3"
+                        style="width: 65px; height: 65px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-file-medical"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">قسم الروشتات والوصفات</h5>
+                    <p class="text-muted small mb-0">قراءة وتحليل الروشتات بالـ OCR وجداول الأدوية.</p>
+                </div>
+            </div>
+
+            <!-- 5. قسم أمراض القلب العام -->
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white text-center department-card"
+                    onclick="window.location.href='department.html?type=general_heart'">
+                    <div class="p-3 rounded-circle bg-light text-custom-pink fs-3 mx-auto mb-3"
+                        style="width: 65px; height: 65px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-heart-fill"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">قسم أمراض القلب العام</h5>
+                    <p class="text-muted small mb-0">متابعة صحة القلب الشاملة والتخطيط.</p>
+                </div>
+            </div>
+
+            <!-- 6. قسم ضغط الدم -->
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white text-center department-card"
+                    onclick="window.location.href='department.html?type=blood_pressure'">
+                    <div class="p-3 rounded-circle bg-light text-custom-pink fs-3 mx-auto mb-3"
+                        style="width: 65px; height: 65px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-speedometer2"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">قسم ضغط الدم</h5>
+                    <p class="text-muted small mb-0">مراقبة قياسات الضغط ومتابعة التغيرات.</p>
+                </div>
+            </div>
+
+            <!-- 7. قسم الكلى -->
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white text-center department-card"
+                    onclick="window.location.href='department.html?type=kidney'">
+                    <div class="p-3 rounded-circle bg-light text-custom-pink fs-3 mx-auto mb-3"
+                        style="width: 65px; height: 65px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-shield-plus"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">قسم الكلى</h5>
+                    <p class="text-muted small mb-0">متابعة وظائف الكلى والفحوصات المخبرية.</p>
+                </div>
+            </div>
+
+            <!-- 8. قسم الكبد والمرارة -->
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white text-center department-card"
+                    onclick="window.location.href='department.html?type=liver'">
+                    <div class="p-3 rounded-circle bg-light text-custom-pink fs-3 mx-auto mb-3"
+                        style="width: 65px; height: 65px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-clipboard2-pulse"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">قسم الكبد والمرارة</h5>
+                    <p class="text-muted small mb-0">متابعة إنزيمات الكبد والحالة الصحية.</p>
+                </div>
+            </div>
+
+
+
+        </div>
+    </div>
+
+    <!-- نافذة منبثقة شاملة (Modal) لكل قسم: قراءات + نصائح AI + حجز موعد -->
+    <div class="modal fade" id="departmentDetailsModal" tabindex="-1" aria-hidden="true"
+        style="font-family: 'Cairo', sans-serif;">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 1.2rem;">
+                <!-- رأس النافذة -->
+                <div class="modal-header bg-light border-0 px-4 py-3">
+                    <h5 class="modal-title fw-bold text-dark">
+                        <i class="bi bi-hospital text-custom-pink me-2"></i><span id="dept-modal-title">تفاصيل
+                            القسم</span>
+                    </h5>
+                    <button type="button" class="btn-close m-0" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <!-- محتوى النافذة -->
+                <div class="modal-body p-4 text-end">
+
+                    <!-- 1. تاريخ القراءات السابقة (جدول مبسط) -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-dark mb-2">
+                            <i class="bi bi-graph-up-arrow text-custom-pink me-1"></i> سجل القراءات والفحوصات السابقة
+                        </h6>
+                        <div class="table-responsive border rounded-3">
+                            <table class="table table-hover mb-0 text-center small">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>التاريخ</th>
+                                        <th>القراءة / الفحص</th>
+                                        <th>القيمة المسجلة</th>
+                                        <th>الحالة</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dept-readings-table">
+                                    <!-- يتم تعبئتها تلقائياً حسب القسم -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 2. نصائح طبية مخصصة من الذكاء الاصطناعي -->
+                    <div class="p-3 rounded-3 mb-4" style="background-color: #fdf2f8; border-right: 4px solid #d63384;">
+                        <h6 class="fw-bold text-custom-pink mb-2">
+                            <i class="bi bi-robot me-1"></i> توصيات ونصائح الذكاء الاصطناعي (AI) المخصصة لحالتك
+                        </h6>
+                        <ul class="mb-0 small text-dark pe-3" id="dept-ai-tips">
+                            <!-- يتم تعبئتها تلقائياً حسب القسم -->
+                        </ul>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <!-- 3. نموذج حجز موعد مباشر مع طبيب القسم -->
+                    <div>
+                        <h6 class="fw-bold text-dark mb-3">
+                            <i class="bi bi-calendar-plus text-custom-pink me-1"></i> حجز موعد مباشر مع طبيب مختص في هذا
+                            القسم
+                        </h6>
+                        <form onsubmit="submitDepartmentBooking(event)" class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">اختر الطبيب المختص</label>
+                                <select class="form-select" id="dept-doctor-select" required>
+                                    <!-- يتم تعبئة الأطباء حسب القسم -->
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">تاريخ الموعد المفضل</label>
+                                <input type="date" class="form-control" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-bold text-muted">ملاحظات أو أعراض تود إعلام الطبيب
+                                    بها</label>
+                                <input type="text" class="form-control" placeholder="اختياري: اكتب أي ملاحظة هنا...">
+                            </div>
+                            <div class="col-12 text-center mt-4">
+                                <button type="submit"
+                                    class="btn btn-custom-pink px-5 py-2 fw-bold rounded-pill shadow-sm">
+                                    <i class="bi bi-check-circle-fill me-1"></i> تأكيد حجز الموعد الآن
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- سكريبت تعبئة بيانات كل قسم ديناميكياً -->
+    <script>
+        const departmentsData = {
+            diabetes: {
+                title: "قسم الباطنية والسكري",
+                readings: `
+                <tr><td>2026-11-15</td><td>سكر صائم</td><td class="fw-bold">95 mg/dL</td><td><span class="badge bg-success-subtle text-success">طبيعي</span></td></tr>
+                <tr><td>2026-11-12</td><td>سكر بعد الأكل بساعتين</td><td class="fw-bold">138 mg/dL</td><td><span class="badge bg-success-subtle text-success">ممتاز</span></td></tr>
+                <tr><td>2026-11-08</td><td>سكر تراكمي (HbA1c)</td><td class="fw-bold">6.1%</td><td><span class="badge bg-warning-subtle text-warning-emphasis">مستقر</span></td></tr>
+            `,
+                tips: `
+                <li class="mb-1"><strong>النظام الغذائي:</strong> تجنب السكريات البسيطة، المشروبات الغازية، والخبز الأبيض، واستبدلها بالحبوب الكاملة والخضروات الورقية.</li>
+                <li class="mb-1"><strong>النشاط البدني:</strong> المشي السريع لمدة 30 دقيقة يومياً بعد الوجبات يساعد بشكل مباشر في تحسين حساسية الإنسولين.</li>
+                <li><strong>المتابعة:</strong> حافظ على شرب الماء بانتظام وقياس السكر في نفس المواعيد أسبوعياً.</li>
+            `,
+                doctors: ["د. أحمد المنصور - استشاري غدد صماء وسكري", "د. سارة العلي - أخصائية باطنية"]
+            },
+            cardio: {
+                title: "قسم القلب والأوعية الدموية",
+                readings: `
+                <tr><td>2026-11-16</td><td>ضغط الدم</td><td class="fw-bold">120 / 80</td><td><span class="badge bg-success-subtle text-success">مثالي</span></td></tr>
+                <tr><td>2026-11-13</td><td>نبض القلب (أثناء الراحة)</td><td class="fw-bold">74 bpm</td><td><span class="badge bg-success-subtle text-success">طبيعي</span></td></tr>
+                <tr><td>2026-11-09</td><td>ضغط الدم المسائي</td><td class="fw-bold">128 / 84</td><td><span class="badge bg-success-subtle text-success">ضمن المعدل</span></td></tr>
+            `,
+                tips: `
+                <li class="mb-1"><strong>تقليل الصوديوم:</strong> قلل من الملح والمخللات والأطعمة المعلبة للحفاظ على استقرار ضغط الدم.</li>
+                <li class="mb-1"><strong>التوأم التنبؤي:</strong> مؤشراتك الحيوية مستقرة؛ الاستمرار على جدول المشي الصباحي يعزز كفاءة الدورة الدموية.</li>
+                <li><strong>الراحة:</strong> احرص على النوم المنتظم (7-8 ساعات) وتجنب التوتر المفاجئ.</li>
+            `,
+                doctors: ["د. طارق الخطيب - استشاري أمراض القلب", "د. ليلى حسن - أخصائية أوعية دموية"]
+            },
+            lab: {
+                title: "قسم الفحوصات المخبرية والتحاليل",
+                readings: `
+        <tr><td>2026-11-10</td><td>فيتامين د (Vitamin D)</td><td class="fw-bold">34 ng/mL</td><td><span class="badge bg-success-subtle text-success">مقبول</span></td></tr>
+        <tr><td>2026-11-10</td><td>صورة الدم الكاملة (CBC)</td><td class="fw-bold">13.8 g/dL</td><td><span class="badge bg-success-subtle text-success">طبيعي</span></td></tr>
+        <tr><td>2026-11-01</td><td>وظائف الكلى (Creatinine)</td><td class="fw-bold">0.9 mg/dL</td><td><span class="badge bg-success-subtle text-success">سليم</span></td></tr>
+    `,
+                tips: `
+        <li class="mb-1"><strong>تحضيرات الفحص:</strong> في حال حجز فحص دهون أو سكر صائم، يُنصح بالصيام من 8 إلى 12 ساعة (يُسمح بشرب الماء فقط).</li>
+        <li><strong>المكملات:</strong> الاستمرار على جرعة فيتامين د الموصوفة في جدول الأدوية يحافظ على مستواه الطبيعي.</li>
+    `,
+                doctors: ["د. ماهر عبد الله - استشاري علم الأمراض والمختبرات", "د. ريم سعيد - أخصائية المختبرات الطبية"]
+            }
+        };
+
+        function openDepartmentDetails(deptKey) {
+            const data = departmentsData[deptKey];
+            document.getElementById('dept-modal-title').innerText = data.title;
+            document.getElementById('dept-readings-table').innerHTML = data.readings;
+            document.getElementById('dept-ai-tips').innerHTML = data.tips;
+
+            const doctorSelect = document.getElementById('dept-doctor-select');
+            doctorSelect.innerHTML = data.doctors.map(doc => `<option value="${doc}">${doc}</option>`).join('');
+
+            const modal = new bootstrap.Modal(document.getElementById('departmentDetailsModal'));
+            modal.show();
+        }
+
+        function submitDepartmentBooking(event) {
+            event.preventDefault();
+            const deptName = document.getElementById('dept-modal-title').innerText;
+            const doctorName = document.getElementById('dept-doctor-select').value;
+            bootstrap.Modal.getInstance(document.getElementById('departmentDetailsModal')).hide();
+            alert(`تم تأكيد حجز موعدك بنجاح!\nالقسم: ${deptName}\nالطبيب/الموعد: ${doctorName}`);
+        }
+    </script>
+
+    <!-- قسم التواصل مع السكرتيرة المدمج بالداشبورد -->
+    <div class="card border-0 shadow-sm p-4 rounded-4 my-4" id="contact-section">
+        <h4 class="fw-bold text-dark mb-3">
+            <i class="bi bi-headset text-custom-pink me-2"></i>التواصل مع السكرتيرة الطبية
+        </h4>
+        <p class="text-muted small">لديك استفسار عن موعد أو تحتاج لمساعدة؟ راسلي السكرتيرة مباشرة من هنا.</p>
+
+        <form onsubmit="event.preventDefault(); alert('تم إرسال رسالتك إلى السكرتيرة بنجاح!');" class="mt-3">
+            <div class="mb-3">
+                <label class="form-label fw-bold small text-muted">عنوان الاستفسار</label>
+                <input type="text" class="form-control" placeholder="مثال: استفسار عن موعد المراجعة القادمة" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold small text-muted">نص الرسالة</label>
+                <textarea class="form-control" rows="3" placeholder="اكتبي تفاصيل طلبك هنا..." required></textarea>
+            </div>
+
+            <!-- زر الإرسال بالمنتصف بحجم مناسب ومرتب -->
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-custom-pink px-5 py-2 fw-bold rounded-pill shadow-sm">
+                    <i class="bi bi-send-fill me-1"></i> إرسال إلى السكرتيرة
+                </button>
+            </div>
+        </form>
+    </div>
+    </form>
+    </div>
+
+    <!-- السكريبت البرمجي الموحد -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // جلب اسم المستخدم وتطبيق وضع كبار السن
+            const fullName = localStorage.getItem("userName") || "مستخدم Somo, Cura";
+            const firstName = fullName.split(" ")[0];
+            const welcomeEl = document.getElementById("welcome-user-name");
+            if (welcomeEl) { welcomeEl.innerText = `مرحباً بك، ${firstName} 👋`; }
+
+            if (localStorage.getItem("seniorMode") === "true") {
+                document.body.classList.add('senior-mode');
+            }
+        });
+
+        function submitRoutine(event) {
+            event.preventDefault();
+            bootstrap.Modal.getInstance(document.getElementById('dailyRoutineModal')).hide();
+            alert('تم تسجيل الروتين اليومي بنجاح!');
+        }
+        function submitNewReading(event) {
+            event.preventDefault();
+            bootstrap.Modal.getInstance(document.getElementById('newReadingModal')).hide();
+            alert('تم حفظ القراءة بنجاح!');
+        }
+        function submitPrescription(event) {
+            event.preventDefault();
+            bootstrap.Modal.getInstance(document.getElementById('uploadPrescriptionModal')).hide();
+            alert('تم رفع الوصفة وتحليلها بنجاح!');
+        }
+    </script>
+
+</body>
+
+</html>
